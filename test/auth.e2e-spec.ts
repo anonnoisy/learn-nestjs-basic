@@ -23,13 +23,15 @@ describe('Authentication System', () => {
 				'email': email,
 				'password': 'testing'
 			})
-      .expect(201)
       .then((response) => {
 				const { id, email } = response.body;
 
 				expect(id).toBeDefined();
 				expect(email).toEqual(email);
-			});
+			})
+      .catch((error) => {
+        console.error(error);
+      });
   });
 
   it('signup as a new user then get the currentky logged in', async () => {
