@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../users/user.entity';
 import { Repository } from 'typeorm';
@@ -15,5 +15,15 @@ export class ReportsService {
 		const report = await this.reportRepository.create(reportDto);
 		report.user = user;
 		return this.reportRepository.save(report)
+	}
+
+	async changeApproval(id: number, approved: boolean): Promise<Report> {
+		const report = await this.reportRepository.findOneBy({ id });
+		if (!report) {
+			throw new NotFoundException('report not found');
+		}
+
+		report.approved = approved;
+		return await this.reportRepository.save(report);
 	}
 }
