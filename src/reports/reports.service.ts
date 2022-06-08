@@ -4,12 +4,28 @@ import { User } from '../users/user.entity';
 import { Repository } from 'typeorm';
 import { CreateReportDto } from './dtos/create-report.dto';
 import { Report } from './report.entity';
+import { GetEstimateDto } from './dtos/get-estimate.dto';
 
 @Injectable()
 export class ReportsService {
 	constructor(
 		@InjectRepository(Report) private readonly reportRepository: Repository<Report>
 		) {}
+
+	async createEstimate({ make, model, lat, lng, year, mileage }: GetEstimateDto) {
+		return await this.reportRepository.createQueryBuilder()
+			.select('AVG(price)', 'price')
+			.where('make = :make', { make })
+			.andWhere('model = :model', { model })
+			.andWhere('lat - :lat BETWEEN -5 and 5', { lat })
+			.andWhere('lng - :lng BETWEEN -5 and 5', { lng })
+			.andWhere('year - :year BETWEEN -3 and 3', { year })
+			.andWhere('approved IS TRUE')
+			.orderBy('ABS(mileage - :mileage)', 'DESC')
+			.setParameters({ mileage })
+			.limit(3)
+			.getRawOne();
+	}
 
 	async create(reportDto: CreateReportDto, user: User): Promise<Report | null> {
 		const report = await this.reportRepository.create(reportDto);
