@@ -7,6 +7,7 @@ import { ReportsService } from './reports.service';
 import { Serialize } from '../interceptors/serialize.interceptor';
 import { ReportDto } from './dtos/report.dto';
 import { ApproveReportDto } from './dtos/approve-report.dto';
+import { AdminGuard } from '../guards/admin.guard';
 
 @Controller('reports')
 export class ReportsController {
@@ -20,7 +21,7 @@ export class ReportsController {
 	}
 
 	@Patch('/:id')
-	@UseGuards(AuthGuard)
+	@UseGuards(AuthGuard, AdminGuard)
 	async approveReport(@Param('id') id: string, @Body() request: ApproveReportDto) {
 		return await this.reportsService.changeApproval(parseInt(id), request.approved);
 	}
